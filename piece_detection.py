@@ -40,8 +40,8 @@ while True:
             # GREEN DETECTION (IMPORTANT)
             mask = cv2.inRange(
                 square,
-                np.array([35, 40, 40]),
-                np.array([85, 255, 255])
+                np.array([30,20,20]),
+                np.array([95, 255, 255])
             )
 
             not_green = cv2.bitwise_not(mask)

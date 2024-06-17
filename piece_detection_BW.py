@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+<<<<<<< Updated upstream
 H = np.load("H.npy")
 print(H)
 cap = cv2.VideoCapture(0)
@@ -20,12 +21,46 @@ def grid_to_fen(grid):
         empty = 0
         for c in range(8):
             val = grid[r][c]
+=======
+
+H = np.load("H.npy")
+print(H)
+
+cap = cv2.VideoCapture(0)
+print("Current brightness:", cap.get(cv2.CAP_PROP_BRIGHTNESS))
+
+# cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, -50)
+# cap.set(cv2.CAP_PROP_EXPOSURE, -6)
+# cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+
+cap.set(cv2.CAP_PROP_BRIGHTNESS, -30)
+print("New brightness:", cap.get(cv2.CAP_PROP_BRIGHTNESS))
+
+SIZE = 800
+CELL = SIZE // 8
+
+# scale reference logic
+DETECT_SIZE = int(CELL * 0.6)
+OFFSET = (CELL - DETECT_SIZE) // 2
+
+
+def grid_to_fen(grid):
+    fen = ""
+
+    for r in range(8):
+        empty = 0
+
+        for c in range(8):
+            val = grid[r][c]
+
+>>>>>>> Stashed changes
             if val == 0:
                 empty += 1
             else:
                 if empty > 0:
                     fen += str(empty)
                     empty = 0
+<<<<<<< Updated upstream
                 if val == 1:
                     fen += "P"   # white
                 elif val == 2:
@@ -35,11 +70,29 @@ def grid_to_fen(grid):
         if r != 7:
             fen += "/"
     return fen
+=======
+
+                if val == 1:
+                    fen += "P"
+                elif val == 2:
+                    fen += "p"
+
+        if empty > 0:
+            fen += str(empty)
+
+        if r != 7:
+            fen += "/"
+
+    return fen
+
+
+>>>>>>> Stashed changes
 while True:
     ret, frame = cap.read()
     if not ret:
         print("Camera error")
         break
+<<<<<<< Updated upstream
     warped = cv2.warpPerspective(frame, H, (SIZE, SIZE))
     hsv = cv2.cvtColor(warped, cv2.COLOR_BGR2HSV)
     value_channel = hsv[:,:,2]   # brightness channel
@@ -106,3 +159,83 @@ while True:
         f.write(full_fen)        
     break
 cap.release()
+=======
+
+    warped = cv2.warpPerspective(frame, H, (SIZE, SIZE))
+    hsv = cv2.cvtColor(warped, cv2.COLOR_BGR2HSV)
+
+    value_channel = hsv[:, :, 2]
+
+    debug = warped.copy()
+    grid = np.zeros((8, 8), dtype=int)
+
+    for r in range(8):
+        for c in range(8):
+
+            x_start = c * CELL + OFFSET
+            y_start = r * CELL + OFFSET
+
+            square = hsv[
+                y_start : y_start + DETECT_SIZE, x_start : x_start + DETECT_SIZE
+            ]
+
+            mask = cv2.inRange(square, np.array([30, 20, 20]), np.array([95, 255, 255]))
+
+            not_green = cv2.bitwise_not(mask)
+
+            piece_pixels = cv2.countNonZero(not_green)
+            total_pixels = square.shape[0] * square.shape[1]
+
+            threshold = piece_pixels / total_pixels
+            print(f"Square ({r},{c}) threshold: {threshold:.3f}")
+
+            if threshold > 0.2:
+
+                value_square = value_channel[
+                    y_start : y_start + DETECT_SIZE, x_start : x_start + DETECT_SIZE
+                ]
+
+                piece_mask = not_green > 0
+
+                if np.any(piece_mask):
+                    mean_val = np.mean(value_square[piece_mask])
+                    print(mean_val)
+
+                    if mean_val > 100:
+                        grid[r][c] = 1
+                        color = (255, 255, 255)
+                    else:
+                        grid[r][c] = 2
+                        color = (0, 255, 0)
+                else:
+                    grid[r][c] = 0
+                    color = (0, 0, 255)
+
+            else:
+                grid[r][c] = 0
+                color = (0, 0, 255)
+
+            cv2.rectangle(
+                debug,
+                (x_start, y_start),
+                (x_start + DETECT_SIZE, y_start + DETECT_SIZE),
+                color,
+                2,
+            )
+
+    cv2.imwrite("debug_grid.jpg", debug)
+
+    print(grid)
+
+    fen = grid_to_fen(grid)
+    full_fen = fen + " w - - 0 1"
+
+    print("FEN:", full_fen)
+
+    with open("fen.txt", "w") as f:
+        f.write(full_fen)
+
+    break
+
+cap.release()
+>>>>>>> Stashed changes

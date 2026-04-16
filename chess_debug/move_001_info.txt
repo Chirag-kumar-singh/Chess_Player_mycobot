@@ -1,0 +1,14 @@
+Move number : 1
+White played: e2e4
+Black played: e7e5
+FEN         : PPPPPPPP/PPP1PPPP/8/3P4/8/8/pppppppp/pppppppp b - - 0 1
+
+Grid (0=empty  1=white  2=black):
+  [1, 1, 1, 1, 1, 1, 1, 1]
+  [1, 1, 1, 0, 1, 1, 1, 1]
+  [0, 0, 0, 0, 0, 0, 0, 0]
+  [0, 0, 0, 1, 0, 0, 0, 0]
+  [0, 0, 0, 0, 0, 0, 0, 0]
+  [0, 0, 0, 0, 0, 0, 0, 0]
+  [2, 2, 2, 2, 2, 2, 2, 2]
+  [2, 2, 2, 2, 2, 2, 2, 2]

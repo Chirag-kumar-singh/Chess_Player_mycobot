@@ -80,13 +80,13 @@ key_map = {
 
 position_map = {
     "11": [-4, -71, -8, -1, -1, 40],
-    "21": [3, -67, -14, -2, -1, 49],
-    "31": [6.279999999999999, -66.59, -11.82, -3.0, 1.7000000000000002, 48.92],
+    "21": [3, -67, -14, -2, -1, 49],        #wrong
+    "31": [6.279999999999999, -66.59, -11.82, -3.0, 1.7000000000000002, 48.92],         #wrong
     "41": [4.279999999999999, -69.59, -12.82, 1.0, 7.699999999999999, 53.92],
     "51": [9.28, -65.59, -20.82, 5.0, 7.699999999999999, 47.92],
-    "61": [19.28, -64.59, -21.82, 5.0, 3.6999999999999993, 60.92],
-    "71": [31.28, -47.54, -64.06, 35.85, -8.43, 39.959999999999994],
-    "81": [30.91, -55.17, -53.65, 33.92, 1.3900000000000001, 35.57],
+    "61": [19.28, -64.59, -21.82, 5.0, 3.6999999999999993, 60.92],      #wrong
+    "71": [31.28, -44.54, -65.06, 33.85, -8.43, 72.96],    
+    "81": [30.91, -50.17, -55.65, 31.92, -1.6099999999999994, 72.57],
     "12": [-7.129999999999999, -64.46000000000001, -20.560000000000002, 0.16000000000000014, -0.16999999999999993, 37.7],
     "22": [-0.129999999999999, -61.46000000000001, -25.560000000000002, 1.1600000000000001, -0.16999999999999993, 37.7],
     "32": [5.870000000000001, -61.46000000000001, -26.560000000000002, -1.8399999999999999, -0.16999999999999993, 49.7],
@@ -158,30 +158,17 @@ def move_safe(target_angles, lift=10):
 
     # Step 1: SAFE
     mc.send_angles(safe_angles, SPEED)
-    while True:
-        current = mc.get_angles()
-        if current and all(abs(c - s) < 5 for c, s in zip(current, safe_angles)):
-            break
-        time.sleep(1)
+    time.sleep(3)
 
     # Step 2: TARGET
     mc.send_angles(target_angles, SPEED)
-    while True:
-        current = mc.get_angles()
-        if current and all(abs(c - t) < 5 for c, t in zip(current, target_angles)):
-            break
-        time.sleep(0.1)
+    time.sleep(3)
 
     return target_angles
 
 def wait_until_reached(target, timeout=5, tol=4):
     start = time.time()
-
-    while time.time() - start < timeout:
-        curr = mc.get_angles()
-        if curr and all(abs(c - t) < tol for c, t in zip(curr, target)):
-            return True
-        time.sleep(0.1)
+    time.sleep(3)
 
     print("⚠️ Warning: target not fully reached")
     return False
@@ -211,13 +198,13 @@ while True:
         continue
     
     if key == 'i':
-        current_angles = [32.120000000000005, -7.47, -52.38, -20.74, 2.81, 75.43]
+        current_angles = [32.120000000000005, -7.47, -52.38, -20.74, 4.8100000000000005, 75.43]
         mc.send_angles(current_angles, SPEED)
         print("\nMoved to initial position")
         continue
 
     if key == 'b':
-        back_position = [32.120000000000005, -7.47, -52.38, -20.74, 2.81, 75.43]
+        back_position = [32.120000000000005, -7.47, -52.38, -20.74, 4.8100000000000005, 75.43]
 
         # Step 1: lift
         safe = lift_current(lift=10)

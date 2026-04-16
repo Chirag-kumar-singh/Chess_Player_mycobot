@@ -4,14 +4,24 @@ import numpy as np
 points = []
 
 img = cv2.imread("capture.jpg")
-clone = img.copy()   # keep original safe
 
-SIZE = 800  # output warped size
+if img is None:
+    print("❌ Image not found")
+    exit()
+
+clone = img.copy()
+
+SIZE = 800
+
+# 🔥 resize for display
+DISPLAY_WIDTH = 800
+h, w = img.shape[:2]
+scale = DISPLAY_WIDTH / w
+display_img = cv2.resize(img, (int(w * scale), int(h * scale)))
 
 def compute_homography():
     src = np.array(points, dtype=np.float32)
 
-    # IMPORTANT ORDER: TL, TR, BL, BR
     dst = np.array([
         [0, 0],
         [SIZE-1, 0],
@@ -23,11 +33,9 @@ def compute_homography():
 
     print("\n✅ Homography Matrix:\n", H)
 
-    # Save matrix
     np.save("H.npy", H)
     print("Saved H.npy")
 
-    # Warp image for verification
     warped = cv2.warpPerspective(clone, H, (SIZE, SIZE))
     cv2.imwrite("warped.jpg", warped)
     print("Saved warped.jpg (VERIFY THIS!)")
@@ -39,35 +47,34 @@ def click_event(event, x, y, flags, param):
             print("Already selected 4 points")
             return
 
-        points.append((x, y))
+        # 🔥 convert back to original scale
+        orig_x = int(x / scale)
+        orig_y = int(y / scale)
 
-        # Draw point
-        cv2.circle(img, (x, y), 8, (0, 0, 255), -1)
+        points.append((orig_x, orig_y))
 
-        # Label
-        cv2.putText(img, f"{len(points)}", (x+10, y-10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
+        # draw on display image
+        cv2.circle(display_img, (x, y), 6, (0, 0, 255), -1)
 
-        print(f"Point {len(points)}: {x}, {y}")
+        cv2.putText(display_img, f"{len(points)}", (x+10, y-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
 
-        cv2.imwrite("clicked.jpg", img)
+        print(f"Point {len(points)}: {orig_x}, {orig_y}")
 
-        # When 4 points selected
+        cv2.imwrite("clicked.jpg", display_img)
+
         if len(points) == 4:
             print("\nSelected points:", points)
-
             compute_homography()
-
             print("\nPress 'q' to exit...")
 
 cv2.namedWindow("image")
 cv2.setMouseCallback("image", click_event)
 
 while True:
-    cv2.imshow("image", img)
+    cv2.imshow("image", display_img)
 
     key = cv2.waitKey(1) & 0xFF
-
     if key == ord('q'):
         break
 

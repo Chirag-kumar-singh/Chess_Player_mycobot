@@ -16,7 +16,7 @@ THRESHOLD = 6
 H = np.load("H.npy")
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_BRIGHTNESS, -40.0)
+cap.set(cv2.CAP_PROP_BRIGHTNESS, -30.0)
 
 engine = Stockfish(path="/usr/games/stockfish")
 
@@ -44,8 +44,8 @@ def detect_grid(warped):
 
             mask = cv2.inRange(
                 square,
-                np.array([35, 40, 40]),
-                np.array([85, 255, 255])
+                np.array([30,20,20]),
+                np.array([95, 255, 255])
             )
 
             not_green = cv2.bitwise_not(mask)
@@ -105,7 +105,7 @@ def stable_grid_detection():
                 if counts[max_idx] >= THRESHOLD:
                     final_grid[r][c] = values[max_idx]
 
-    return np.flipud(final_grid)
+    return final_grid
 
 
 # ---------------- MOVE LOGIC ----------------
